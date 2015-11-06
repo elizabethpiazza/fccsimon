@@ -22,7 +22,7 @@ var events = (function(){
 	};
 })();
 
-var Game = function(){
+function Game(){
 	var controls = ['red', 'green', 'yellow', 'blue'];
 	var players = ['Player', 'Simon'];
 
@@ -33,7 +33,10 @@ var Game = function(){
 	var makeRandomMove = function(){
 		var move = controls[Math.floor(Math.random() * controls.length)];
 		pastMoves.push(move);
-		events.publish('moveChosen', move);
+		events.publish('moveChosen', {
+			'move': move,
+			'pastMoves': pastMoves
+		});
 	};
 
 	var startaTurn = function(control){
@@ -41,9 +44,7 @@ var Game = function(){
 			makeRandomMove();
 			events.publish('playMoveHistory', pastMoves);
 			var userMoveCounter = 0;
-			console.log(pastMoves.length);
 			var subscription = events.subscribe('userMoves', function(move){
-				console.log(move, userMoveCounter);
 				if (move != pastMoves[userMoveCounter]){
 					console.log("User lost");
 					gameEnded = true;
@@ -62,7 +63,6 @@ var Game = function(){
 }
 
 var Gui = function(){
-	var aGame = new Game();
 	var startButton = document.getElementById('start');
 	var controls = document.getElementsByClassName('control');
 
@@ -74,11 +74,28 @@ var Gui = function(){
 		controls[i].addEventListener('click', publishUserMoves);
 	}
 
-	events.subscribe('moveChosen', function(move){
-		//turn this into a function to highlight control
-		console.log(move);
-	})
+	var histSubscription = events.subscribe('moveChosen', function(info){
+		var pastMoves = info.pastMoves;
+		highlightMoves(pastMoves);
+		document.getElementById('score').innerHTML = pastMoves.length;
+	});
+
+	var highlightMoves = function(moveSequence) {
+		var lastMove = moveSequence[moveSequence.length - 1];
+		console.log(moveSequence);
+		var count = 0;
+		var flashMoves = setInterval(function(){
+			color = moveSequence[count];
+			document.getElementById(color).style.backgroundColor = 'white';
+			setTimeout(function(){document.getElementById(color).style.backgroundColor = color;}, 500);
+				count++;
+			if (count >= moveSequence.length) { clearInterval(flashMoves); }
+		}, 1000);
+	};
+
 	//this stopped working?
+	var aGame = new Game();
+
 	startButton.addEventListener('click', aGame.makeRandomMove);
 }
 

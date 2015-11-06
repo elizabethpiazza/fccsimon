@@ -4,17 +4,22 @@
 		<meta charset="utf-8">
 		<link rel="stylesheet" type="text/css" href="bootstrap.min.css">
 		<link rel="stylesheet" type="text/css" href="style.css">
-		<title>Javascript TicTacToe</title>
+		<title>Javascript Simon</title>
 	</head>
 	<body>
-		<div class="container">
-			<div class="col-sm-6 col-sm-offset-3">
+		<div id="game-container">
+			<div class="row">
+				<div class="control" id="blue"></div>
 				<div class="control" id="red"></div>
+			</div>
+			<div class="row">
 				<div class="control" id="yellow"></div>
 				<div class="control" id="green"></div>
-				<div class="control" id="blue"></div>
 			</div>
-			<button id="start">Start</button>
+			<div id="center-box">
+				<div>Score <span id="score">0<span></div>
+				<div><button id="start">Start</button></div>
+			</div>
 		</div>
 
 		<script type="text/javascript" src="script.js"></script>
