@@ -46,7 +46,8 @@ function Game(){
 			var userMoveCounter = 0;
 			var subscription = events.subscribe('userMoves', function(move){
 				if (move != pastMoves[userMoveCounter]){
-					console.log("User lost");
+					alert("User lost");
+					pastMoves = 0;
 					gameEnded = true;
 					return;
 				}
@@ -62,16 +63,20 @@ function Game(){
 	startaTurn();
 }
 
-var Gui = function(){
-	var startButton = document.getElementById('start');
+function Gui(){
 	var controls = document.getElementsByClassName('control');
 
-	var publishUserMoves = function(event){
-		events.publish('userMoves', event.target.id);
+	var publishUserMoves = function(control){
+		events.publish('userMoves', control);
 	};
 
+	var userClickMove = function(){
+		publishUserMoves(this.id);
+		lightUp(this.id);
+	}
+
 	for (var i = 0; i < controls.length; i++){
-		controls[i].addEventListener('click', publishUserMoves);
+		controls[i].addEventListener('click', userClickMove);
 	}
 
 	var histSubscription = events.subscribe('moveChosen', function(info){
@@ -80,24 +85,30 @@ var Gui = function(){
 		document.getElementById('score').innerHTML = pastMoves.length;
 	});
 
+
 	var highlightMoves = function(moveSequence) {
-		var lastMove = moveSequence[moveSequence.length - 1];
-		console.log(moveSequence);
 		var count = 0;
 		var flashMoves = setInterval(function(){
-			color = moveSequence[count];
-			document.getElementById(color).style.backgroundColor = 'white';
-			setTimeout(function(){document.getElementById(color).style.backgroundColor = color;}, 500);
-				count++;
+			lightUp(moveSequence[count]);
+			count++;
 			if (count >= moveSequence.length) { clearInterval(flashMoves); }
-		}, 1000);
+		}, 600);
 	};
+
+	var lightUp = function(control){
+		var color = control;
+		var $control = document.getElementById(control)
+		$control.className += ' lit';
+		window.setTimeout(function(){
+			$control.className = 'control';
+		}, 300);
+	}
 
 	//this stopped working?
 	var aGame = new Game();
-
-	startButton.addEventListener('click', aGame.makeRandomMove);
 }
-
-var start = new Gui();
+var startButton = document.getElementById('start');
+var game;
+startButton.addEventListener('click', start);
+function start() { game = new Gui();}
 
